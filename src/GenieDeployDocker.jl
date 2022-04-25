@@ -48,7 +48,7 @@ function build(path::String = "."; appname::String = "genie", nocache::Bool = tr
     `$(DOCKER(sudo = sudo)) build --no-cache -t "$appname" $path`
   else
     `$(DOCKER(sudo = sudo)) build -t "$appname" $path`
-  end |> Genie.Deploy.run
+  end |> GenieDeploy.run
 
   "Docker container successfully built" |> println
 end
@@ -102,7 +102,7 @@ function run(; containername::String = "genieapp", hostport::Int = 80, container
   docker_command = replace(string(DOCKER(sudo = sudo)), "`" => "")
   "Starting docker container with `$docker_command run $(join(options, " "))`" |> println
 
-  `$(DOCKER(sudo = sudo)) run $options` |> Genie.Deploy.run
+  `$(DOCKER(sudo = sudo)) run $options` |> GenieDeploy.run
 end
 
 module Generator
