@@ -70,10 +70,24 @@ Runs the Docker container named `containername`, binding `hostport` and `contain
 - `command::String`: what command to run when starting the app
 - `rm::Bool`: removes the container upon exit
 - `it::Bool`: runs interactively
+- `websockets_hostport::Int`: port used for binding the websockets connection, defaults to `hostport`,
+- `websockets_containerport::Int`: port used for binding the container for websockets access, defaults to `containerport`,
+- `detached::Bool`: whether or not to run the process detached from the Julia session (outlives the Julia process), default `false`,
+- `sudo::Bool`: whether or not to run the process as `sudo`, defaults to `true` on Linux.
 """
-function run(; containername::String = "genieapp", hostport::Int = 80, containerport::Int = 8000, appdir::String = "/home/genie/app",
-                mountapp::Bool = false, image::String = "genie", command::String = "", rm::Bool = true, it::Bool = true,
-                websockets_hostport::Int = hostport, websockets_containerport::Int = containerport, sudo::Bool = Sys.islinux())
+function run(;  containername::String = "genieapp",
+                hostport::Int = 80,
+                containerport::Int = 8000,
+                appdir::String = "/home/genie/app",
+                mountapp::Bool = false,
+                image::String = "genie",
+                command::String = "",
+                rm::Bool = true,
+                it::Bool = true,
+                websockets_hostport::Int = hostport,
+                websockets_containerport::Int = containerport,
+                detached::Bool = false,
+                sudo::Bool = Sys.islinux())
   options = []
 
   it && push!(options, "-it")
@@ -102,8 +116,32 @@ function run(; containername::String = "genieapp", hostport::Int = 80, container
   docker_command = replace(string(DOCKER(sudo = sudo)), "`" => "")
   "Starting docker container with `$docker_command run $(join(options, " "))`" |> println
 
-  `$(DOCKER(sudo = sudo)) run $options` |> GenieDeploy.run
+  @async `$(DOCKER(sudo = sudo)) run $options` |> (detached ? detach : identity) |> GenieDeploy.run
 end
+
+
+"""
+    stop(; containername::String = "genieapp", timeout::Int = 10, sudo::Bool = Sys.islinux())
+
+Stops the Docker container named `containername`.
+"""
+function stop(containername::String = "genieapp"; timeout::Int = 10, sudo::Bool = Sys.islinux())
+  `$(DOCKER(sudo = sudo)) stop --time=$timeout $containername` |> GenieDeploy.run
+end
+
+
+"""
+    list(; all::Bool = false)
+
+Lists the running Docker containers. Pass `all = true` to list all the Docker containers,
+including the non-running ones.
+"""
+function list(; all::Bool = false, sudo::Bool = Sys.islinux())
+  options = []
+  all && push!(options, "-a")
+  `$(DOCKER(sudo = sudo)) ps $options` |> GenieDeploy.run
+end
+
 
 module Generator
 
