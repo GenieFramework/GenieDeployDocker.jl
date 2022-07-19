@@ -164,7 +164,7 @@ function dockerfile(; user::String = "genie", supervisor::Bool = false, nginx::B
   # set up app environment
   ENV JULIA_DEPOT_PATH "/home/$user/.julia"
   ENV GENIE_ENV "$env"
-  ENV HOST "$host"
+  ENV GENIE_HOST "$host"
   ENV PORT "$port"
   ENV WSPORT "$websockets_port"
   ENV EARLYBIND "$earlybind"
