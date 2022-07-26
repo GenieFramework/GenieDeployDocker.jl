@@ -9,7 +9,7 @@ GenieDeploy = "d108a3e0-159a-438b-bbd8-7bf1a8b5a5d1"
 
 [compat]
 Genie = "5"
-GenieDeploy = "0.1, 1"
+GenieDeploy = "0.1, 0.2, 0.3, 1"
 julia = "1.6"
 
 [extras]
