@@ -172,7 +172,7 @@ function dockerfile(; user::String = "genie", supervisor::Bool = false, nginx::B
   WORKDIR $appdir
 
   # configure permissions
-  RUN chown $user:$user -R *
+  RUN chown -R $user:$user /home/
 
   RUN chmod +x bin/repl
   RUN chmod +x bin/server
